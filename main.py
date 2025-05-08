@@ -13,8 +13,7 @@ PASSWORD = config.PASSWORD #
 driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
 #Nodos de Interes
-#ids_nodos = ["480124288", "187", "17258", "61", "137", "258", "94", "185"]
-ids_nodos = [4801, 187, 17258, 61, 137, 258, 94, 185]
+#ids_nodos = [4801, 187, 17258, 61, 137, 258, 94, 185]
 ids_nodos = [4801, 187, 17258, 61]
 
 # Obtenemos los poi ids
