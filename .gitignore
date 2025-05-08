@@ -1,0 +1,13 @@
+__pycache__
+env-logistic/
+pruebas.py
+config.py
+
+*.npy
+
+pruebaCypher/
+
+cache/
+
+moaco_log_detallado.txt
+moaco_rutas_log.csv
