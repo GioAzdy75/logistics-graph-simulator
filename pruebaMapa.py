@@ -31,8 +31,14 @@ def obtener_caminos_yens(k=3, source=4801, target=61):
 # Obtener los 3 mejores caminos
 caminos = obtener_caminos_yens(k=3)
 
+
+#print(caminos)
+
 # Crear el mapa centrado en el primer nodo del primer camino
 primer_camino = caminos[0][1]
+
+print(len(caminos[0]))
+print(len(primer_camino))
 centro = primer_camino[0]
 mapa = folium.Map(location=[centro["lat"], centro["lon"]], zoom_start=14)
 

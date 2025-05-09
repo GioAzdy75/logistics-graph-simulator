@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from algorithms import MOACO
+import graph_map
 
 #Cargar Datos 1
 """
@@ -49,7 +50,19 @@ mejor_ruta, mejor_costo = aco.correr(n_ants=10, n_iteraciones=30)
 print("Mejor ruta encontrada:", mejor_ruta)
 print("Costo total:", mejor_costo)
 
+index = mejor_ruta[0]
+list_tupla = []
+for i in mejor_ruta[1:]:
+    list_tupla.append((poi_ids[index],poi_ids[i]))
+    index = i
 
+print(list_tupla)
+
+
+#graph_map.create_graph_map()
+
+
+"""
 ####
 
 import matplotlib.pyplot as plt
@@ -70,3 +83,5 @@ plt.title("Mapa de calor de distancias entre POIs")
 plt.xlabel("Destino")
 plt.ylabel("Origen")
 plt.show()
+
+"""
