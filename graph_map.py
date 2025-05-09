@@ -56,6 +56,7 @@ def create_graph_map_from_paths(paths):
     print("✅ Mapa generado: ruta_caminos.html")
 
 def create_graph_map_single_color(paths, color="blue"):
+    """Lo mismo que el anterio solo que asume todo los caminos que se le pase son parte de un unico camino por ende los pinta del mismo color"""
     if not paths:
         print("No hay caminos para graficar.")
         return
