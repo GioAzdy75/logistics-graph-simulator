@@ -1,14 +1,14 @@
 __pycache__
 env-logistic/
 config.py
+pruebas.py
+pruebaMapa.py
 
 *.npy
 
 pruebaCypher/
-
+.venv/
 cache/
 
-pruebas.py
-pruebaMapa.py
 moaco_log_detallado.txt
 moaco_rutas_log.csv

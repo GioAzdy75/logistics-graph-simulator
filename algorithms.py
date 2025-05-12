@@ -1,18 +1,5 @@
 import networkx as nx
-import consults
-import config
-from neo4j import GraphDatabase
 import random
-
-
-""" 
-URI      = config.URI # Default : "bolt://localhost:7687"
-USER     = config.USER # Default : "neo4j"
-PASSWORD = config.PASSWORD #
-
-driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
-
-graph = consults.extract_graph_data(driver) """
 
 def initialize_pheromone(G, base_pheromone=2.0):
     for _, _, data in G.edges(data=True):
