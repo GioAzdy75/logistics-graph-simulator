@@ -8,5 +8,7 @@ pruebaCypher/
 
 cache/
 
+pruebas.py
+pruebaMapa.py
 moaco_log_detallado.txt
 moaco_rutas_log.csv
