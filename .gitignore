@@ -1,7 +1,6 @@
 __pycache__
 env-logistic/
 config.py
-pruebas.py
 pruebaMapa.py
 
 *.npy
