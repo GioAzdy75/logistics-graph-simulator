@@ -1,7 +1,4 @@
-from neo4j import GraphDatabase
 import folium
-import config
-
 
 from itertools import cycle
 

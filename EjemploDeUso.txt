@@ -1,5 +1,0 @@
-en el archivo pruebas.py ejecuta #Cargar Datos 1
-una vez obtenido los datos se te genera los csv, mandalos a neo e importalos con Script.cypher
-una vez con los datos cargados correr main.py, esto genera una matriz con distancia minima entre los nodos de interes (ids_nodos)
-correr pruebas.py (comentar el codigo de carga de datos y descomentar el resto), esto ejecutara MOACO(limitado solo tiene en cuenta las distancias),
-y dejara un archivo moaco_log_detallado.txt (con el log de cada ruta tomada por las hormigas y como evoluciona la ruta a tomar)

@@ -1,14 +1,14 @@
-import pandas as pd
-import numpy as np
-from algorithms import MOACO
-import graph_map
-
-#Cargar Datos 1
-"""
 import graph_to_csv
-graph_to_csv.graph_from_address_to_csv("Plaza Independencia, Mendoza, Argentina",10000)
-"""
 
+location = "Plaza Independencia, Mendoza, Argentina"
+radius = 10000
+
+try:
+    graph_to_csv.graph_from_address_to_csv(location, radius)
+except:
+    graph_to_csv.graph_from_place_to_csv(location)
+
+""" 
 # Cargar la matriz
 dist = np.load("dist_matrix.npy")
 
@@ -57,7 +57,7 @@ for i in mejor_ruta[1:]:
     index = i
 
 print(list_tupla)
-
+ """
 
 #graph_map.create_graph_map()
 
