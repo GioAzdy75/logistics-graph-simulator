@@ -9,6 +9,7 @@ PASSWORD = config.PASSWORD #
 
 driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
+
 # Extraemos el grafo para operar internamente sobre el
 graph = extract_graph_data(driver)
 
