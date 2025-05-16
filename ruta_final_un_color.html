@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_0b1f6a10f6e122999b7cc9dbda900e7f {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_0b1f6a10f6e122999b7cc9dbda900e7f" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_0b1f6a10f6e122999b7cc9dbda900e7f = L.map(
+                "map_0b1f6a10f6e122999b7cc9dbda900e7f",
+                {
+                    center: [-32.9581455, -68.7545169],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_79111c519e54082a6415546f5e655dd6 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_79111c519e54082a6415546f5e655dd6.addTo(map_0b1f6a10f6e122999b7cc9dbda900e7f);
+        
+    
+            var poly_line_5ebf5182bdbd92b3bb03de32bce86457 = L.polyline(
+                [[-32.9581455, -68.7545169], [-32.9584886, -68.7529712], [-32.9580785, -68.7527387], [-32.957991, -68.7529732], [-32.9579349, -68.7531235]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.9, "smoothFactor": 1.0, "stroke": true, "weight": 4.5}
+            ).addTo(map_0b1f6a10f6e122999b7cc9dbda900e7f);
+        
+    
+            var marker_a550c0fe9b624ac7345905cc2dc03e4f = L.marker(
+                [-32.9581455, -68.7545169],
+                {
+}
+            ).addTo(map_0b1f6a10f6e122999b7cc9dbda900e7f);
+        
+    
+            var icon_0e8fd13873e751b9639725b7843cb59e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4fc5763152b5e8f41be02acc3a0987a3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f9d566c868335bd506641003e6d510c6 = $(`<div id="html_f9d566c868335bd506641003e6d510c6" style="width: 100.0%; height: 100.0%;">Inicio 6516</div>`)[0];
+                popup_4fc5763152b5e8f41be02acc3a0987a3.setContent(html_f9d566c868335bd506641003e6d510c6);
+            
+        
+
+        marker_a550c0fe9b624ac7345905cc2dc03e4f.bindPopup(popup_4fc5763152b5e8f41be02acc3a0987a3)
+        ;
+
+        
+    
+    
+                marker_a550c0fe9b624ac7345905cc2dc03e4f.setIcon(icon_0e8fd13873e751b9639725b7843cb59e);
+            
+    
+            var marker_9f6074177bef601247428090fffda275 = L.marker(
+                [-32.9579349, -68.7531235],
+                {
+}
+            ).addTo(map_0b1f6a10f6e122999b7cc9dbda900e7f);
+        
+    
+            var icon_6c8ad175e9e339f56ee75aeee3b5b817 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9a5bbfe912c4a67a09c9a119842f1c17 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_689b5e71726bad74e9f408d9aad9ba9b = $(`<div id="html_689b5e71726bad74e9f408d9aad9ba9b" style="width: 100.0%; height: 100.0%;">Fin 18806</div>`)[0];
+                popup_9a5bbfe912c4a67a09c9a119842f1c17.setContent(html_689b5e71726bad74e9f408d9aad9ba9b);
+            
+        
+
+        marker_9f6074177bef601247428090fffda275.bindPopup(popup_9a5bbfe912c4a67a09c9a119842f1c17)
+        ;
+
+        
+    
+    
+                marker_9f6074177bef601247428090fffda275.setIcon(icon_6c8ad175e9e339f56ee75aeee3b5b817);
+            
+</script>
+</html>

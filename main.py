@@ -36,6 +36,15 @@ print(paths)
 graph_map.create_graph_map_from_paths(paths)
 
 
+# {
+#  (19488,15418) = [{"id": 149488, "lon": -68.8205003, "lat": -32.9040337}
+#                        {"id": 15408, "lon": -68.8205776, "lat": -32.9046553},
+#                        {"id": 15407, "lon": -68.8206100, "lat": -32.9051000},
+#                        ...
+#                    ],
+# 
+# }  
+
 #Ejecutamos Optimizacion
 ###Se ejectuario el algoritmo de optimizacion y nos devolveria el orden de busqueda del nodo ej [node1,node3,node2,node4]
 # luego con eso hay que crear una lista de la forma  [(node1,node3),(node3,node2),...] 
