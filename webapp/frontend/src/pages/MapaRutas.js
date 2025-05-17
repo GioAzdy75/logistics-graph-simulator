@@ -14,7 +14,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-
 const iconLocal = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
@@ -25,18 +24,54 @@ const iconLocal = new L.Icon({
 });
 
 const iconCentro = new L.Icon({
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  iconSize: [30, 50],
-  iconAnchor: [15, 50],
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
   popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
+const iconInicioRuta = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const unirTramosRuta = (data) => {
+  const coordenadas = [];
+  const inicios = [];
+  for (const tramo in data) {
+    const nodos = data[tramo];
+    if (!Array.isArray(nodos)) continue;
+    if (nodos.length > 0) {
+      inicios.push({ lat: nodos[0].lat, lon: nodos[0].lon });
+    }
+    for (let i = 0; i < nodos.length; i++) {
+      const { lat, lon } = nodos[i];
+      if (typeof lat !== "number" || typeof lon !== "number") continue;
+      const punto = { lat, lon };
+      if (
+        coordenadas.length === 0 ||
+        coordenadas[coordenadas.length - 1].lat !== lat ||
+        coordenadas[coordenadas.length - 1].lon !== lon
+      ) {
+        coordenadas.push(punto);
+      }
+    }
+  }
+  return { coordenadas, inicios };
+};
 
 export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("local");
   const [coordenadasTemp, setCoordenadasTemp] = useState(null);
+  const [iniciosRuta, setIniciosRuta] = useState([]);
 
   const MapClickFormulario = () => {
     useMapEvents({
@@ -76,13 +111,15 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   };
 
   const calcularRuta = async () => {
-    const response = await fetch("http://localhost:8000/calcular-ruta", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ puntos }),
-    });
-    const data = await response.json();
-    setRuta(data.ruta);
+    try {
+      const response = await fetch("http://localhost:8000/calcularRuta");
+      const data = await response.json();
+      const resultado = unirTramosRuta(data);
+      setRuta(resultado.coordenadas);
+      setIniciosRuta(resultado.inicios);
+    } catch (error) {
+      console.error("Error al calcular la ruta:", error);
+    }
   };
 
   return (
@@ -143,9 +180,11 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
       <div className="border border-gray-300 rounded-lg overflow-hidden relative z-0">
         <MapContainer center={[-32.89, -68.83]} zoom={13} className="h-96">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+          {/* Puntos ingresados por el usuario */}
           {puntos.map((p, i) => (
             <Marker
-              key={i}
+              key={"punto-" + i}
               position={[p.lat, p.lon]}
               icon={p.tipo === "centro" ? iconCentro : iconLocal}
             >
@@ -155,8 +194,22 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
             </Marker>
           ))}
 
-          {ruta.length > 0 && (
-            <Polyline positions={ruta.map((p) => [p.lat, p.lon])} color="blue" />
+          {/* Marcadores de inicio de cada tramo */}
+          {iniciosRuta.map((p, i) => (
+            <Marker
+              key={"inicio-" + i}
+              position={[p.lat, p.lon]}
+              icon={iconInicioRuta}
+            >
+              <Popup>
+                <strong>Inicio Ruta #{i + 1}</strong>
+              </Popup>
+            </Marker>
+          ))}
+
+          {/* Polilínea de la ruta completa */}
+          {Array.isArray(ruta) && ruta.length > 0 && ruta[0] && (
+            <Polyline positions={ruta.map(p => [p.lat, p.lon])} color="blue" />
           )}
         </MapContainer>
       </div>
