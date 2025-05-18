@@ -94,6 +94,7 @@ def compute_distance_matrix_dijkstra(driver, poi_ids):
     Retorna una matriz de distancia minima evaluada por dijkstra entre los nodos, 
     y una un diccionario con los caminos que conforman las distancia entre los nodos antes planteados
     """
+
     CY_DIJKSTRA_PATHS = """
     MATCH (start:Intersection) WHERE id(start) = $source
     CALL gds.shortestPath.dijkstra.stream('mapa-logistico', {
@@ -154,7 +155,7 @@ def crear_matriz_feromonas(dist):
 
 def ejecutarOptimizacion(driver):
     #Lista de Nodos ids
-    lista_nodos = [4801, 187, 17258, 61] # Source Ids
+    lista_nodos = [4801, 187, 17258, 61, 13, 21, 831, 999, 666, 10, 121, 123, 354] # Source Ids
     #Creamos matriz distancia con dijkstra entre los nodos
     dist_matrix, paths = compute_distance_matrix_dijkstra(driver,lista_nodos)
     #Guardamos los calculos hechos

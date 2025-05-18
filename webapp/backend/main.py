@@ -6,7 +6,7 @@ import os
 import sys
 
 import config
-from algorithms import optimizacion_1
+from algorithms import optimizacion_1,optimizacion_2
 
 #
 from fastapi.middleware.cors import CORSMiddleware
@@ -89,3 +89,8 @@ def calcular_ruta_optima():
     
     return result
 
+
+@app.get("/Optimizacion2")
+def correr_optimizacion2():
+    result = optimizacion_2.ejecutarOptimizacion(conn.driver)
+    return JSONResponse(content=result)
