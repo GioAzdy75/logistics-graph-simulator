@@ -37,60 +37,55 @@ def evaluate_path(graph, path):
             return float('inf')  # Retornar un valor alto para indicar que el camino no es válido
     return total_length
 
-def moaco(graph, num_ants=5, num_iterations=30, alpha=1, beta=2, evaporation_rate=0.1):
+def moaco(graph, start_nodes=None, end_nodes=None, num_ants=5, num_iterations=30, alpha=1, beta=2, evaporation_rate=0.1):
+    """
+    MOACO adaptado para devolver el mejor camino desde cualquier heladería a cada cliente.
+    :return: Diccionario {cliente: (camino, puntuación)}
+    """
+
+    nodes = list(graph.nodes())
+    if start_nodes is None:
+        start_nodes = random.sample(nodes, min(3, len(nodes)))
+    if end_nodes is None:
+        # Evitar que los end_nodes estén en start_nodes
+        posibles_end = [n for n in nodes if n not in start_nodes]
+        if len(posibles_end) < 10:
+            end_nodes = posibles_end
+        else:
+            end_nodes = random.sample(posibles_end, 10)
+
     initialize_pheromone(graph)
-    print("Feromonas inicializadas.")
-    start_node = random.choice(list(graph.nodes))
-    end_node = random.choice(list(graph.nodes))
-    print(f"Start node: {start_node}, End node: {end_node}")
-    
-    for iteration in range(num_iterations):
-        print(f"\nIteración {iteration + 1}/{num_iterations}")
-        paths = []
-        
-        # Paso 1: Cada hormiga construye un camino
-        for ant in range(num_ants):
-            print(f"  Hormiga {ant + 1}/{num_ants} construyendo camino...")
-            path = []
-            current_node = start_node  # Define un nodo inicial
-            while current_node != end_node:
-                neighbors = list(graph.neighbors(current_node))
-                neighbors = [neighbor for neighbor in neighbors if neighbor not in path]
-                if not neighbors:  # Si no hay vecinos, termina el bucle
-                    print(f"    Nodo {current_node} no tiene vecinos. Termina el camino.")
-                    break
+    best_paths_per_client = {}
 
-                probabilities = [
-                    calculate_transition_probability(graph, current_node, neighbor, alpha, beta)
-                    for neighbor in neighbors
-                ]
-                
-                if not any(probabilities):  # Si todas las probabilidades son 0, termina el bucle
-                    print(f"    Todas las probabilidades son 0 en el nodo {current_node}. Termina el camino.")
-                    break
-
-                next_node = random.choices(neighbors, weights=probabilities, k=1)[0]
-                path.append(next_node)
-                current_node = next_node
-            
-            if path:
+    for end_node in end_nodes:
+        best_paths = []
+        for _ in range(num_iterations):
+            paths = []
+            for _ in range(num_ants):
+                start_node = random.choice(start_nodes)
+                path = [start_node]
+                current_node = start_node
+                while current_node != end_node:
+                    neighbors = list(graph.neighbors(current_node))
+                    if not neighbors:
+                        # No hay vecinos, camino inválido
+                        path = []  # O puedes dejar el path hasta aquí
+                        break
+                    probabilities = [
+                        calculate_transition_probability(graph, current_node, neighbor, alpha, beta)
+                        for neighbor in neighbors
+                    ]
+                    next_node = random.choices(neighbors, weights=probabilities, k=1)[0]
+                    path.append(next_node)
+                    current_node = next_node
                 score = evaluate_path(graph, path)
-                if score == float('inf'):  # Si el camino no es válido
-                    print(f"    Camino inválido: {path}")
-                else:
-                    #print(f"    Camino construido: {path} con puntuación: {score}")
-                    paths.append((path, score))
-            else:
-                print(f"    Hormiga {ant + 1} no pudo construir un camino válido.")
-        
-        # Paso 2: Actualizar feromonas
-        print("  Actualizando feromonas...")
-        update_pheromones(graph, paths, evaporation_rate)
-    
-    # Retorna la mejor solución encontrada
-    best_path = min(paths, key=lambda x: x[1], default=([], float('inf')))
-    print(f"\nMejor camino encontrado: {best_path[0]} con puntuación: {best_path[1]}")
-    return best_path
+                paths.append((path, score))
+            update_pheromones(graph, paths, evaporation_rate)
+            best_paths.append(min(paths, key=lambda x: x[1]))
+        # Mejor camino para este cliente
+        best_paths_per_client[end_node] = min(best_paths, key=lambda x: x[1])
+
+    return best_paths_per_client
 
 def reformat_path(path):
     new_path = []

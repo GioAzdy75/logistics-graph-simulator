@@ -49,3 +49,15 @@ def extract_graph_data(driver):
             )
 
     return G
+
+def get_nearest_node(driver, coord):
+    lat, lon = coord
+    query = """MATCH (n)
+    WITH n, point({latitude: n.lat, longitude: n.lon}) AS p
+    WITH n, distance(p, point({latitude: $lat, longitude: $lon})) AS dist
+    RETURN n.id AS id
+    ORDER BY dist ASC
+    LIMIT 1"""
+    with driver.session() as session:
+        result = session.run(query, lat=lat, lon=lon)
+        return result

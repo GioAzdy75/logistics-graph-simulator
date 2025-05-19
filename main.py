@@ -16,7 +16,7 @@ graph = extract_graph_data(driver)
 from algorithms import moaco
 
 # Obtenemos la lista correspondiente al camino más optimo encontrado por MOACO
-optimal_path = moaco(graph)[0]
+optimal_paths = moaco(graph)
 
 """Convertimos la lista obtenida en un diccionario con el formato:
     {(nodo_1,nodo_2) : [{"id": 4801, "lon": -68.8205003, "lat": -32.9040337}
@@ -29,12 +29,18 @@ optimal_path = moaco(graph)[0]
      ...
     }
 """
-path_key = (optimal_path[0], optimal_path[-1])
-path_nodes = get_nodes_by_ids(driver, optimal_path)
-new_path = {path_key: path_nodes}
+
+paths = []
+
+for path in optimal_paths.values():
+    path_ = path[0]
+    path_key = (path_[0], path_[-1])
+    path_nodes = get_nodes_by_ids(driver, path_)
+    new_path = {path_key: path_nodes}
+    paths.append(new_path)
 
 # Crear el mapa con el nuevo camino
-graph_map.create_graph_map_single_color(new_path)
+graph_map.create_graph_map_from_paths(new_path)
 
 
 driver.close()
