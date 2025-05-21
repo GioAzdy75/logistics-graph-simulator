@@ -47,7 +47,7 @@ def extract_graph_data(driver):
                 type=record["type"],
                 **record["properties"]
             )
-
+            #print(record["properties"])
     return G
 
 def get_nearest_node(driver, coord):

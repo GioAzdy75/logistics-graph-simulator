@@ -34,13 +34,15 @@ paths = []
 
 for path in optimal_paths.values():
     path_ = path[0]
-    path_key = (path_[0], path_[-1])
-    path_nodes = get_nodes_by_ids(driver, path_)
-    new_path = {path_key: path_nodes}
-    paths.append(new_path)
+    if path_:
+        path_key = (path_[0], path_[-1])
+        path_nodes = get_nodes_by_ids(driver, path_)
+        new_path = {path_key: path_nodes}
+        paths.append(new_path)
+    else: continue
 
 # Crear el mapa con el nuevo camino
-graph_map.create_graph_map_from_paths(new_path)
+graph_map.create_graph_map_from_paths(paths)
 
 
 driver.close()
