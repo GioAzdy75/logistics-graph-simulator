@@ -96,24 +96,28 @@ def compute_distance_matrix_dijkstra(driver, poi_ids):
     """
 
     CY_DIJKSTRA_PATHS = """
-    MATCH (start:Intersection) WHERE id(start) = $source
+    MATCH (start:Point {id: $source})
+    WITH id(start) AS sourceNodeId
+    MATCH (target:Point)
+    WHERE target.id IN $targets
+    WITH sourceNodeId, collect(id(target)) AS targetNodeIds
     CALL gds.shortestPath.dijkstra.stream('mapa-logistico', {
-      sourceNode: id(start),
-      targetNodes: $targets,
-      relationshipWeightProperty: 'length'
+    sourceNode: sourceNodeId,
+    targetNodes: targetNodeIds,
+    relationshipWeightProperty: 'length'
     })
     YIELD targetNode, totalCost, nodeIds
     UNWIND nodeIds AS nid
     WITH targetNode, totalCost, gds.util.asNode(nid) AS node
     RETURN 
-      targetNode AS target_id,
-      totalCost,
-      collect({
+    gds.util.asNode(targetNode).id AS target_id,
+    totalCost,
+    collect({
         id: node.id,
         lon: node.lon,
         lat: node.lat
-      }) AS path
-      """
+    }) AS path
+    """
     n = len(poi_ids)
     dist = np.full((n, n), np.inf)
     np.fill_diagonal(dist, 0.0)
@@ -134,6 +138,12 @@ def compute_distance_matrix_dijkstra(driver, poi_ids):
                     dist[i, j] = cost
                     paths[(src_id, tgt_id)] = path
 
+    print("Matriz de distancias:")
+    print(dist)
+    print("Caminos calculados:")
+    for k, v in paths.items():
+        print(f"{k[0]} -> {k[1]} | {len(v)} nodos | camino: {[p['id'] for p in v]}")
+
     return dist, paths
 
 def crear_matriz_feromonas(dist):
@@ -153,25 +163,24 @@ def crear_matriz_feromonas(dist):
     return tau
 
 
-def ejecutarOptimizacion(driver):
-    #Lista de Nodos ids
-    lista_nodos = [4801, 187, 17258, 61, 13, 21, 831, 999, 666, 10, 121, 123, 354] # Source Ids
+def ejecutarOptimizacion(driver,puntos):
+    lista_nodos = [p["id"] for p in puntos]
+    print(lista_nodos)
     #Creamos matriz distancia con dijkstra entre los nodos
     dist_matrix, paths = compute_distance_matrix_dijkstra(driver,lista_nodos)
     #Guardamos los calculos hechos
-    #np.save("dist_matrix.npy", dist_matrix)
+    np.save("dist_matrix.npy", dist_matrix)
 
     #Ejecutamos optimizacion
-    
     ##Creamos la matriz de feromonas
     tau = crear_matriz_feromonas(dist_matrix)
+    print("Matriz de distancias:")
+    for row in dist_matrix:
+        print(row)
     ##Inicializamos ACO
     aco = ACO(dist_matrix,tau)
     mejor_ruta, mejor_costo = aco.correr(n_ants=10,n_iteraciones=30)
     
-    print(mejor_ruta)
-    print(mejor_costo)
-    #
     #Parsear la mejor ruta
     head = lista_nodos[mejor_ruta[0]]
     optimal_path = []
@@ -179,8 +188,6 @@ def ejecutarOptimizacion(driver):
         second = lista_nodos[m]
         optimal_path.append((head,second))
         head = second
-
-    print(optimal_path)
 
     #Nuevo camino , filtra del diccionario paths y crea uno nuevo con new_paths solo con los caminos finales que usaremos
     new_path = {}

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useEffect } from "react"; // arriba del todo si no lo tenés
+
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -6,6 +8,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-icon.png";
 import "leaflet/dist/images/marker-icon-2x.png";
 import "leaflet/dist/images/marker-shadow.png";
+
+import FormularioNuevoLocal from "../components/FormularioNuevoLocal";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -68,45 +72,82 @@ const unirTramosRuta = (data) => {
 
 export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [nuevoNombre, setNuevoNombre] = useState("");
-  const [nuevoTipo, setNuevoTipo] = useState("local");
   const [coordenadasTemp, setCoordenadasTemp] = useState(null);
   const [iniciosRuta, setIniciosRuta] = useState([]);
+  const [pendienteDeCrear, setPendienteDeCrear] = useState(null);
+
+
+  const eliminarPunto = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/punto/${id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        setPuntos(puntos.filter(p => p.id !== id));
+        console.log("Punto eliminado correctamente.");
+      } else {
+        console.error("Error al eliminar punto.");
+      }
+    } catch (error) {
+      console.error("Error al eliminar punto:", error);
+    }
+  };
+
+  useEffect(() => {
+    const cargarPuntosIniciales = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/puntos/mapa");
+        const data = await res.json();
+        setPuntos(data);
+      } catch (error) {
+        console.error("Error al cargar los puntos iniciales:", error);
+      }
+    };
+
+    cargarPuntosIniciales();
+  }, []);
+
 
   const MapClickFormulario = () => {
     useMapEvents({
       click(e) {
         setCoordenadasTemp({ lat: e.latlng.lat, lon: e.latlng.lng });
+        setMostrarFormulario(true);
       },
     });
     return null;
   };
 
-  const agregarNuevoPunto = async () => {
-    if (nuevoNombre && coordenadasTemp) {
-      const nuevoPunto = {
-        nombre: nuevoNombre,
-        lat: coordenadasTemp.lat,
-        lon: coordenadasTemp.lon,
-        tipo: nuevoTipo,
-      };
-      setPuntos([...puntos, nuevoPunto]);
+  const agregarLocalConfirmado = (nuevoPunto) => {
+    setPendienteDeCrear(nuevoPunto);
+    setMostrarFormulario(false);
+    setCoordenadasTemp(null);
+  };
 
-      try {
-        await fetch("http://localhost:8000/agregar-punto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nuevoPunto),
-        });
-        console.log("Punto registrado en la base de datos.");
-      } catch (error) {
-        console.error("Error al guardar el punto en la API:", error);
+  const enviarLocal = async () => {
+    const body = {
+      from_: pendienteDeCrear.from,
+      to: pendienteDeCrear.to,
+      calle: pendienteDeCrear.calle,
+      local: {
+        id: pendienteDeCrear.id,
+        name: pendienteDeCrear.nombre,
+        lat: pendienteDeCrear.lat,
+        lon: pendienteDeCrear.lon
       }
-
-      setNuevoNombre("");
-      setNuevoTipo("local");
-      setCoordenadasTemp(null);
-      setMostrarFormulario(false);
+    };
+    try {
+      const res = await fetch("http://localhost:8000/ubicacion/insertar-local", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      setPuntos([...puntos, pendienteDeCrear]);
+      setPendienteDeCrear(null);
+      console.log("Local creado:", data);
+    } catch (error) {
+      console.error("Error al crear el punto:", error);
     }
   };
 
@@ -126,62 +167,27 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
     <section className="ml-64 p-6 relative z-10">
       <h2 className="text-2xl font-bold mb-4">Mapa Interactivo</h2>
 
-      <button
-        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        onClick={() => setMostrarFormulario(true)}
-      >
-        Agregar Punto
-      </button>
-
-      {mostrarFormulario && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-96 bg-white p-4 rounded shadow-2xl z-50 border">
-          <h3 className="text-lg font-semibold mb-2">Nuevo Punto</h3>
-          <input
-            type="text"
-            placeholder="Nombre"
-            className="w-full border px-3 py-2 mb-3 rounded"
-            value={nuevoNombre}
-            onChange={(e) => setNuevoNombre(e.target.value)}
-          />
-          <select
-            className="w-full border px-3 py-2 mb-3 rounded"
-            value={nuevoTipo}
-            onChange={(e) => setNuevoTipo(e.target.value)}
-          >
-            <option value="local">Local</option>
-            <option value="centro">Centro de Distribución</option>
-          </select>
-          <div className="h-48 border rounded mb-3 overflow-hidden relative z-40">
-            <MapContainer center={[-32.89, -68.83]} zoom={13} className="h-full z-40">
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <MapClickFormulario />
-              {coordenadasTemp && (
-                <Marker position={[coordenadasTemp.lat, coordenadasTemp.lon]} />
-              )}
-            </MapContainer>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-              onClick={agregarNuevoPunto}
-            >
-              Confirmar
-            </button>
-            <button
-              className="bg-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-400"
-              onClick={() => setMostrarFormulario(false)}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
+      {mostrarFormulario && coordenadasTemp && (
+        <FormularioNuevoLocal
+          coordenadas={coordenadasTemp}
+          onClose={() => {
+            setMostrarFormulario(false);  // <- cierra el formulario
+            setCoordenadasTemp(null);     // <- resetea la posición
+          }}
+          onCrear={(nuevoPunto) => {
+            setPuntos([...puntos, nuevoPunto]);  // agrega nuevo marcador
+            setMostrarFormulario(false);
+            setCoordenadasTemp(null);
+          }}
+        />
       )}
+
 
       <div className="border border-gray-300 rounded-lg overflow-hidden relative z-0">
         <MapContainer center={[-32.89, -68.83]} zoom={13} className="h-96">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <MapClickFormulario />
 
-          {/* Puntos ingresados por el usuario */}
           {puntos.map((p, i) => (
             <Marker
               key={"punto-" + i}
@@ -194,7 +200,17 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
             </Marker>
           ))}
 
-          {/* Marcadores de inicio de cada tramo */}
+          {pendienteDeCrear && (
+            <Marker
+              position={[pendienteDeCrear.lat, pendienteDeCrear.lon]}
+              icon={pendienteDeCrear.tipo === "centro" ? iconCentro : iconLocal}
+            >
+              <Popup>
+                <strong>{pendienteDeCrear.nombre}</strong>
+              </Popup>
+            </Marker>
+          )}
+
           {iniciosRuta.map((p, i) => (
             <Marker
               key={"inicio-" + i}
@@ -207,12 +223,20 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
             </Marker>
           ))}
 
-          {/* Polilínea de la ruta completa */}
           {Array.isArray(ruta) && ruta.length > 0 && ruta[0] && (
             <Polyline positions={ruta.map(p => [p.lat, p.lon])} color="blue" />
           )}
         </MapContainer>
       </div>
+
+      {pendienteDeCrear && (
+        <button
+          onClick={enviarLocal}
+          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 block mx-auto"
+        >
+          Crear Nuevo Punto
+        </button>
+      )}
 
       <button
         onClick={calcularRuta}
@@ -233,6 +257,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
                   <th className="border px-4 py-2">Latitud</th>
                   <th className="border px-4 py-2">Longitud</th>
                   <th className="border px-4 py-2">Tipo</th>
+                  <th className="border px-4 py-2">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,6 +268,18 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
                     <td className="border px-4 py-1">{p.lat.toFixed(5)}</td>
                     <td className="border px-4 py-1">{p.lon.toFixed(5)}</td>
                     <td className="border px-4 py-1">{p.tipo}</td>
+                    <td className="border px-4 py-1">
+                      <button
+                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                        onClick={() => {
+                          if (window.confirm("¿Estás seguro de eliminar este punto?")) {
+                            eliminarPunto(p.id);
+                          }
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
