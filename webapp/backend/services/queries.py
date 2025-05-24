@@ -43,10 +43,10 @@ def asegurar_proyeccion_grafo(driver):
         exists = result.single()["exists"]
 
         if exists:
-            print("🔁 El grafo ya existe. Eliminando para reconstruir...")
+            #print("El grafo ya existe. Eliminando para reconstruir...")
             session.run("CALL gds.graph.drop('mapa-logistico', false)")
 
-        print("✅ Creando grafo 'mapa-logistico'...")
+        #print("Creando grafo 'mapa-logistico'...")
         session.run("""
             CALL gds.graph.project(
                 'mapa-logistico',

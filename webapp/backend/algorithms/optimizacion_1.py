@@ -138,11 +138,11 @@ def compute_distance_matrix_dijkstra(driver, poi_ids):
                     dist[i, j] = cost
                     paths[(src_id, tgt_id)] = path
 
-    print("Matriz de distancias:")
-    print(dist)
-    print("Caminos calculados:")
-    for k, v in paths.items():
-        print(f"{k[0]} -> {k[1]} | {len(v)} nodos | camino: {[p['id'] for p in v]}")
+    #print("Matriz de distancias:")
+    #print(dist)
+    #print("Caminos calculados:")
+    #for k, v in paths.items():
+        #print(f"{k[0]} -> {k[1]} | {len(v)} nodos | camino: {[p['id'] for p in v]}")
 
     return dist, paths
 
@@ -165,7 +165,7 @@ def crear_matriz_feromonas(dist):
 
 def ejecutarOptimizacion(driver,puntos):
     lista_nodos = [p["id"] for p in puntos]
-    print(lista_nodos)
+    #print(lista_nodos)
     #Creamos matriz distancia con dijkstra entre los nodos
     dist_matrix, paths = compute_distance_matrix_dijkstra(driver,lista_nodos)
     #Guardamos los calculos hechos
@@ -174,9 +174,9 @@ def ejecutarOptimizacion(driver,puntos):
     #Ejecutamos optimizacion
     ##Creamos la matriz de feromonas
     tau = crear_matriz_feromonas(dist_matrix)
-    print("Matriz de distancias:")
-    for row in dist_matrix:
-        print(row)
+    #print("Matriz de distancias:")
+    #for row in dist_matrix:
+        #print(row)
     ##Inicializamos ACO
     aco = ACO(dist_matrix,tau)
     mejor_ruta, mejor_costo = aco.correr(n_ants=10,n_iteraciones=30)

@@ -1,4 +1,4 @@
-from neo4j_connection import Neo4jConnection
+from services.neo4j_connection import Neo4jConnection
 
 def importar_csv(conn: Neo4jConnection, nodes_path: str, edges_path: str, borrar_antes=True):
     if borrar_antes:

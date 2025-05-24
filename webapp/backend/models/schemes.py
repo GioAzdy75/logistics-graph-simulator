@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 
 
+class MapaRequest(BaseModel):
+    location: str
+    radio: int
 
 class Coordenadas(BaseModel):
     lat: float
