@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react"; // arriba del todo si no lo tenés
 
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -10,14 +10,88 @@ import "leaflet/dist/images/marker-icon-2x.png";
 import "leaflet/dist/images/marker-shadow.png";
 
 import FormularioNuevoLocal from "../components/FormularioNuevoLocal";
+import PolylineDecorator from "../components/PolylineDecorator"
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-});
+import "leaflet-polylinedecorator";
 
+
+
+const getAngle = (p1, p2) => {
+  const dx = p2.lon - p1.lon;
+  const dy = p2.lat - p1.lat;
+  return (Math.atan2(dy, dx) * 180) / Math.PI;
+};
+
+const crearFlechaIcono = (angle) =>
+  L.divIcon({
+    className: "flecha-icono",
+    html: `
+      <div style="
+        transform: rotate(${angle}deg);
+        font-size: 20px;
+        color: red;
+      ">
+        ➤
+      </div>
+    `,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+
+  
+const getSegmentos = (ruta) => {
+  const segmentos = [];
+  for (let i = 0; i < ruta.length - 1; i++) {
+    segmentos.push({
+      start: ruta[i],
+      end: ruta[i + 1],
+      index: i,
+    });
+  }
+  return segmentos;
+};
+
+const getColorGradient = (index, total) => {
+  const hueStart = 240; // azul oscuro
+  const hueEnd = 0;     // rojo
+
+  // Invertido: de azul a rojo
+  const hue = hueStart + ((hueEnd - hueStart) * index) / (total || 1);
+
+  return `hsl(${hue}, 100%, 30%)`;
+};
+
+
+const getIconoPorTipo = (tipo) => tipo === "CentroDeDistribucion" ? iconCentro : iconLocal;
+
+// Crea un ícono con número dinámico
+const crearIconoConNumero = (numero, iconBase) =>
+  L.divIcon({
+    className: "custom-icon",
+    html: `
+      <div style="position: relative; display: inline-block;">
+        <img src="${iconBase.options.iconUrl}" style="width: 25px; height: 41px;" />
+        <div style="
+          position: absolute;
+          top: -5px;
+          left: 0;
+          width: 100%;
+          text-align: center;
+          font-weight: bold;
+          font-size: 14px;
+          color: white;
+          text-shadow: 1px 1px 2px black;
+        ">
+          ${numero}
+        </div>
+      </div>
+    `,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [0, -41],
+  });
+
+//Iconos
 const iconLocal = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
@@ -45,9 +119,12 @@ const iconInicioRuta = new L.Icon({
   shadowSize: [41, 41],
 });
 
+
+//Funcion para graficar la ruta
 const unirTramosRuta = (data) => {
   const coordenadas = [];
   const inicios = [];
+
   for (const tramo in data) {
     const nodos = data[tramo];
     if (!Array.isArray(nodos)) continue;
@@ -76,7 +153,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   const [iniciosRuta, setIniciosRuta] = useState([]);
   const [pendienteDeCrear, setPendienteDeCrear] = useState(null);
 
-
+  //eliminar Puntos - Verificar Reponsabilidad
   const eliminarPunto = async (id) => {
     try {
       const res = await fetch(`http://localhost:8000/punto/${id}`, {
@@ -92,7 +169,8 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
       console.error("Error al eliminar punto:", error);
     }
   };
-
+  
+  //cargar puntos
   useEffect(() => {
     const cargarPuntosIniciales = async () => {
       try {
@@ -107,7 +185,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
     cargarPuntosIniciales();
   }, []);
 
-
+  //Obtiene coordenadas del mapa
   const MapClickFormulario = () => {
     useMapEvents({
       click(e) {
@@ -117,40 +195,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
     });
     return null;
   };
-
-  const agregarLocalConfirmado = (nuevoPunto) => {
-    setPendienteDeCrear(nuevoPunto);
-    setMostrarFormulario(false);
-    setCoordenadasTemp(null);
-  };
-
-  const enviarLocal = async () => {
-    const body = {
-      from_: pendienteDeCrear.from,
-      to: pendienteDeCrear.to,
-      calle: pendienteDeCrear.calle,
-      local: {
-        id: pendienteDeCrear.id,
-        name: pendienteDeCrear.nombre,
-        lat: pendienteDeCrear.lat,
-        lon: pendienteDeCrear.lon
-      }
-    };
-    try {
-      const res = await fetch("http://localhost:8000/ubicacion/insertar-local", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      setPuntos([...puntos, pendienteDeCrear]);
-      setPendienteDeCrear(null);
-      console.log("Local creado:", data);
-    } catch (error) {
-      console.error("Error al crear el punto:", error);
-    }
-  };
-
+  //
   const calcularRuta = async () => {
     try {
       const response = await fetch("http://localhost:8000/calcularRuta");
@@ -171,11 +216,11 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
         <FormularioNuevoLocal
           coordenadas={coordenadasTemp}
           onClose={() => {
-            setMostrarFormulario(false);  // <- cierra el formulario
-            setCoordenadasTemp(null);     // <- resetea la posición
+            setMostrarFormulario(false);
+            setCoordenadasTemp(null);
           }}
           onCrear={(nuevoPunto) => {
-            setPuntos([...puntos, nuevoPunto]);  // agrega nuevo marcador
+            setPuntos([...puntos, nuevoPunto]);
             setMostrarFormulario(false);
             setCoordenadasTemp(null);
           }}
@@ -192,7 +237,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
             <Marker
               key={"punto-" + i}
               position={[p.lat, p.lon]}
-              icon={p.tipo === "centro" ? iconCentro : iconLocal}
+              icon={p.tipo === "CentroDeDistribucion" ? iconCentro : iconLocal}
             >
               <Popup>
                 <strong>{p.nombre || (p.tipo === "local" ? "Local" : "Centro")}</strong>
@@ -215,28 +260,48 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
             <Marker
               key={"inicio-" + i}
               position={[p.lat, p.lon]}
-              icon={iconInicioRuta}
+              icon={getIconoPorTipo(p.tipo)} // no tiene TIPO ver que alternativa usar (se me ocurre desde la api mandarle)
             >
               <Popup>
                 <strong>Inicio Ruta #{i + 1}</strong>
               </Popup>
+              <Tooltip
+                direction="top"
+                offset={[0, -20]}
+                permanent
+                opacity={1}
+              >
+                <span style={{
+                  fontWeight: "bold",
+                  color: "white",
+                  textShadow: "1px 1px 2px black",
+                  fontSize: "14px"
+                }}>
+                  {i + 1}
+                </span>
+              </Tooltip>
             </Marker>
           ))}
-
           {Array.isArray(ruta) && ruta.length > 0 && ruta[0] && (
-            <Polyline positions={ruta.map(p => [p.lat, p.lon])} color="blue" />
+            <>
+              {getSegmentos(ruta).map(({ start, end, index }, i, arr) => (
+                <Polyline
+                  key={`segmento-${i}`}
+                  positions={[
+                    [start.lat, start.lon],
+                    [end.lat, end.lon],
+                  ]}
+                  color={getColorGradient(index, arr.length - 1)}
+                  weight={4}
+                  opacity={0.8}
+                />
+              ))}
+
+              <PolylineDecorator positions={ruta.map(p => [p.lat, p.lon])} />
+            </>
           )}
         </MapContainer>
       </div>
-
-      {pendienteDeCrear && (
-        <button
-          onClick={enviarLocal}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 block mx-auto"
-        >
-          Crear Nuevo Punto
-        </button>
-      )}
 
       <button
         onClick={calcularRuta}

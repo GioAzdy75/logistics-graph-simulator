@@ -11,6 +11,15 @@ const iconLocal = new L.Icon({
   shadowSize: [41, 41],
 });
 
+const iconCentro = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 export default function FormularioNuevoLocal({ coordenadas, onClose, onCrear }) {
   const [nombre, setNombre] = useState("");
   const [tipo, setTipo] = useState("local");
@@ -55,7 +64,7 @@ export default function FormularioNuevoLocal({ coordenadas, onClose, onCrear }) 
         name: nombre,
         lat: coordenadas.lat,
         lon: coordenadas.lon,
-        tipo: tipo === "centro" ? "CentroDeDistribucion" : "Local" // ✅ traducimos a los valores esperados en Neo4j
+        tipo: tipo === "CentroDeDistribucion" ? "CentroDeDistribucion" : "Local" //traducimos a los valores esperados en Neo4j
       }
     };
 
@@ -95,7 +104,7 @@ export default function FormularioNuevoLocal({ coordenadas, onClose, onCrear }) 
         onChange={(e) => setTipo(e.target.value)}
       >
         <option value="local">Local</option>
-        <option value="centro">Centro de Distribución</option>
+        <option value="CentroDeDistribucion">Centro de Distribución</option>
       </select>
 
       <select
@@ -123,7 +132,7 @@ export default function FormularioNuevoLocal({ coordenadas, onClose, onCrear }) 
           <div className="h-48 border rounded mb-3 overflow-hidden relative z-40">
             <MapContainer center={[coordenadas.lat, coordenadas.lon]} zoom={17} className="h-full z-40">
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={[coordenadas.lat, coordenadas.lon]} icon={iconLocal}>
+              <Marker position={[coordenadas.lat, coordenadas.lon]} icon={(() => tipo === "CentroDeDistribucion" ? iconCentro : iconLocal)()}>
                 <Popup>{nombre}</Popup>
               </Marker>
             </MapContainer>
