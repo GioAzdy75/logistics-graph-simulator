@@ -4,6 +4,13 @@ from pydantic import BaseModel
 class MapaRequest(BaseModel):
     location: str
     radio: int
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "location": "Plaza Independencia, Mendoza, Argentina",
+                "radio": 5000
+            }
+        }
 
 class Coordenadas(BaseModel):
     lat: float

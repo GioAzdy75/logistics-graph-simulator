@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from services.neo4j_connection import Neo4jConnection
 from services.point_service import delete_map_point, insertar_nuevo_punto, list_map_points, obtener_tramo_cercano
 from services.queries import obtener_puntos ,asegurar_proyeccion_grafo
-from services.graph_services import crear_mapa_logistico
+from services.graph_services import crear_mapa_logistico, eliminar_mapa
 import config
 from algorithms import optimizacion_1,optimizacion_2
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +30,8 @@ def crear_mapa(data: MapaRequest):
 
 @app.delete("/Mapa")
 def borrar_mapa():
-    pass
+    eliminar_mapa(conn)
+    return {"Borrado": "Exitoso"}
 
 @app.get("/puntos/mapa")
 def get_puntos_mapa():
@@ -52,6 +53,7 @@ def insertar_local(data: InsercionRequest):
 def calcular_ruta_optima():
     asegurar_proyeccion_grafo(conn.driver)
     puntos_ids = obtener_puntos(conn.driver)
+    #ordenar centro de distrubcion.
     result = optimizacion_1.ejecutarOptimizacion(conn.driver,puntos_ids)
     return result
 

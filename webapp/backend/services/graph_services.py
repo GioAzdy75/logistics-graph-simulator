@@ -13,3 +13,9 @@ def crear_mapa_logistico(data: MapaRequest,conn):
     shutil.copy("edges.csv", os.path.join(config.NEO4J_IMPORT_DIR, "edges.csv"))
     import_data.importar_csv(conn, "nodes.csv", "edges.csv")
     return {"Creado": "Exitoso"}
+
+def eliminar_mapa(conn):
+    query = """MATCH (n) DETACH DELETE n"""
+    with conn.driver.session() as session:
+        result = session.run(query)
+        return result.single()
