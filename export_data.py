@@ -1,7 +1,7 @@
 import graph_to_csv
 
 location = "Plaza Independencia, Mendoza, Argentina"
-radius = 10000
+radius = 3000
 
 try:
     graph_to_csv.graph_from_address_to_csv(location, radius)
