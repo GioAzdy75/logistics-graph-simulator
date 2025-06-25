@@ -182,9 +182,9 @@ def ejecutarOptimizacion(driver,puntos):
     mejor_ruta, mejor_costo = aco.correr(n_ants=10,n_iteraciones=30)
     
     #Parsear la mejor ruta
-    head = lista_nodos[mejor_ruta[0]]
+    head = lista_nodos[mejor_ruta[0]] # type: ignore
     optimal_path = []
-    for m in mejor_ruta[1:]:
+    for m in mejor_ruta[1:]: # type: ignore
         second = lista_nodos[m]
         optimal_path.append((head,second))
         head = second

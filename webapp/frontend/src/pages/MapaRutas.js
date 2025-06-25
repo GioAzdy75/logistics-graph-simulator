@@ -174,11 +174,25 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   useEffect(() => {
     const cargarPuntosIniciales = async () => {
       try {
-        const res = await fetch("http://localhost:8000/puntos/mapa");
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8000/puntos/mapa", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
         const data = await res.json();
-        setPuntos(data);
+        if (Array.isArray(data)) {
+          setPuntos(data);
+        } else {
+          setPuntos([]);
+          if (data.detail) {
+            alert("No autorizado. Por favor, inicia sesión.");
+            // Aquí podrías redirigir al login si tienes routing
+          }
+        }
       } catch (error) {
         console.error("Error al cargar los puntos iniciales:", error);
+        setPuntos([]);
       }
     };
 
@@ -233,7 +247,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <MapClickFormulario />
 
-          {puntos.map((p, i) => (
+          {Array.isArray(puntos) && puntos.map((p, i) => (
             <Marker
               key={"punto-" + i}
               position={[p.lat, p.lon]}
@@ -310,7 +324,7 @@ export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
         Calcular Ruta Óptima
       </button>
 
-      {puntos.length > 0 && (
+      {Array.isArray(puntos) && puntos.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-2 text-center">Puntos Agregados</h3>
           <div className="overflow-x-auto">

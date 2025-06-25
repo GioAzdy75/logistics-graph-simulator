@@ -34,3 +34,18 @@ class InsercionRequest(BaseModel):
     to: Intersection
     calle: str
     local: PuntoEstablecimiento
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class User(BaseModel):
+    id: int | None = None
+    username: str
+    email: str
+
+
