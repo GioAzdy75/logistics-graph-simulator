@@ -14,7 +14,8 @@ import PolylineDecorator from "../components/PolylineDecorator"
 
 import "leaflet-polylinedecorator";
 
-
+import { iconLocal, iconCentro } from '../static/Icons';
+import {unirTramosRuta} from '../utils/unirRutas'
 
 const getAngle = (p1, p2) => {
   const dx = p2.lon - p1.lon;
@@ -91,61 +92,6 @@ const crearIconoConNumero = (numero, iconBase) =>
     popupAnchor: [0, -41],
   });
 
-//Iconos
-const iconLocal = new L.Icon({
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-const iconCentro = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-const iconInicioRuta = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-
-//Funcion para graficar la ruta
-const unirTramosRuta = (data) => {
-  const coordenadas = [];
-  const inicios = [];
-
-  for (const tramo in data) {
-    const nodos = data[tramo];
-    if (!Array.isArray(nodos)) continue;
-    if (nodos.length > 0) {
-      inicios.push({ lat: nodos[0].lat, lon: nodos[0].lon });
-    }
-    for (let i = 0; i < nodos.length; i++) {
-      const { lat, lon } = nodos[i];
-      if (typeof lat !== "number" || typeof lon !== "number") continue;
-      const punto = { lat, lon };
-      if (
-        coordenadas.length === 0 ||
-        coordenadas[coordenadas.length - 1].lat !== lat ||
-        coordenadas[coordenadas.length - 1].lon !== lon
-      ) {
-        coordenadas.push(punto);
-      }
-    }
-  }
-  return { coordenadas, inicios };
-};
 
 export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);

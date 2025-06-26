@@ -29,3 +29,4 @@ def importar_csv(conn: Neo4jConnection, nodes_path: str, edges_path: str, borrar
     conn.query(query_edges)
 
     return {"status": "ok", "mensaje": "Mapa importado correctamente desde CSV"}
+
