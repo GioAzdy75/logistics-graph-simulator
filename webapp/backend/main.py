@@ -101,3 +101,7 @@ def login(username: str = Form(...), password: str = Form(...)):
 @app.get("/protegido")
 def ruta_protegida(username: str = Depends(verify_token)):
     return {"mensaje": f"Acceso concedido a {username}"}
+
+@app.get("/PRUEBADOCKER")
+def pruebadocker():
+    return {"prueba": "docker"}
