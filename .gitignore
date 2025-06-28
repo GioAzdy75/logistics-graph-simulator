@@ -11,3 +11,5 @@ cache/
 
 moaco_log_detallado.txt
 moaco_rutas_log.csv
+webapp/edges.csv
+webapp/nodes.csv
