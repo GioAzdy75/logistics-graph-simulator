@@ -14,7 +14,7 @@ def list_map_points(conn):
 
     query = """
     MATCH (p:Point)
-    WHERE p.tipo IN ['Local', 'CentroDeDistribucion']
+    WHERE p.tipo <> 'Interseccion'
     RETURN p.id AS id, p.name AS nombre, p.lat AS lat, p.lon AS lon, p.tipo AS tipo
     """
     with conn.driver.session() as session:

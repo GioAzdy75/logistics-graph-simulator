@@ -1,28 +1,25 @@
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 
-export default function Sidebar() {
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+export default function Introduction() {
   return (
-    <aside className="w-64 bg-gray-900 text-white h-screen fixed top-0 left-0 z-20 flex flex-col">
-      <div className="p-4 border-b border-gray-700">
-        <h1 className="text-lg font-semibold">Optimización de Rutas</h1>
-      </div>
-      <nav className="flex-1 p-4 space-y-4 text-sm">
-        <ul className="space-y-2">
-          <li><Link to="/" className="text-blue-400 hover:underline">Introducción</Link></li>
-          <li><Link to="/locales" className="text-blue-400 hover:underline">Locales y Distribución</Link></li>
-        </ul>
-      </nav>
-      <button
-        onClick={handleLogout}
-        className="m-4 mt-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+    <div className="flex flex-col items-center justify-center h-full text-center p-8">
+      <h1 className="text-3xl font-bold mb-4">Bienvenido al Sistema de Optimización de Rutas</h1>
+      <p className="text-gray-700 max-w-xl mb-6">
+        Esta aplicación te permite visualizar y gestionar rutas eficientes para tus puntos de distribución.
+        Navegá con el menú lateral y explorá las funcionalidades disponibles.
+      </p>
+      <img
+        src={"ejemplo"}
+        alt="Mapa de rutas ilustrativo"
+        className="max-w-md w-full rounded-lg shadow-lg mb-6"
+      />
+      <Link
+        to="/locales"
+        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
       >
-        Cerrar sesión
-      </button>
-    </aside>
+        Empezar ahora
+      </Link>
+    </div>
   );
 }

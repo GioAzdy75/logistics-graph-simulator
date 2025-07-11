@@ -7,7 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app:z
-      - /app/node_modules
     command: ["npm", "start"]
     working_dir: /app
     environment:

@@ -93,12 +93,13 @@ const crearIconoConNumero = (numero, iconBase) =>
   });
 
 
-export default function MapaRutas({ puntos, setPuntos, ruta, setRuta }) {
+export default function MapaRutas({}) {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [coordenadasTemp, setCoordenadasTemp] = useState(null);
   const [iniciosRuta, setIniciosRuta] = useState([]);
   const [pendienteDeCrear, setPendienteDeCrear] = useState(null);
-
+  const [puntos, setPuntos] = useState(null)
+  const [ruta, setRuta] = useState(null)
   //eliminar Puntos - Verificar Reponsabilidad
   const eliminarPunto = async (id) => {
     try {
