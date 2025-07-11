@@ -10,8 +10,11 @@ from models.schemes import Coordenadas, Intersection, PuntoEstablecimiento, Inse
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
+import redis
 
 conn = Neo4jConnection(config.URI, config.USER, config.PASSWORD)
+# Conexión a Redis
+redis_client = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 app = FastAPI()
 
 #CORS
@@ -101,6 +104,17 @@ def login(username: str = Form(...), password: str = Form(...)):
 @app.get("/protegido")
 def ruta_protegida(username: str = Depends(verify_token)):
     return {"mensaje": f"Acceso concedido a {username}"}
+
+@app.get("/redis-test")
+def test_redis():
+    try:
+        # Guardar un valor
+        redis_client.set("test_key", "¡Redis funciona!")
+        # Leer el valor
+        value = redis_client.get("test_key")
+        return {"redis_status": "conectado", "test_value": value}
+    except Exception as e:
+        return {"redis_status": "error", "message": str(e)}
 
 @app.get("/PRUEBADOCKER")
 def pruebadocker():
