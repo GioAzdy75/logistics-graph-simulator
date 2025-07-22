@@ -128,3 +128,48 @@ CREATE INDEX trip_dates_index IF NOT EXISTS FOR (t:Trip) ON (t.started_at);
 CREATE INDEX trip_ended_index IF NOT EXISTS FOR (t:Trip) ON (t.ended_at);
 CREATE INDEX delivery_id_index IF NOT EXISTS FOR (d:Delivery) ON (d.id);
 CREATE INDEX delivery_delivered_index IF NOT EXISTS FOR (d:Delivery) ON (d.delivered_at);
+
+CREATE (v1:Vehicle {
+    id: 'vehicle_001',
+    plate: 'ABC-123',
+    type: 'van',
+    capacity: 1000,
+    available: true
+});
+CREATE (v2:Vehicle {
+    id: 'vehicle_002',
+    plate: 'DEF-456',
+    type: 'truck',
+    capacity: 2500,
+    available: true
+});
+CREATE (v3:Vehicle {
+    id: 'vehicle_003',
+    plate: 'GHI-789',
+    type: 'motorcycle',
+    capacity: 50,
+    available: false
+});
+
+MATCH (t:Trip {id: 'trip_001'}), (v:Vehicle {id: 'vehicle_001'})
+CREATE (t)-[:USE]->(v);
+MATCH (t:Trip {id: 'trip_002'}), (v:Vehicle {id: 'vehicle_002'})
+CREATE (t)-[:USE]->(v);
+MATCH (t:Trip {id: 'trip_003'}), (v:Vehicle {id: 'vehicle_003'})
+CREATE (t)-[:USE]->(v);
+
+MATCH (del:Delivery {id: 'delivery_001'}), (p:Point {id: '286994676'})
+CREATE (del)-[:FROM]->(p);
+MATCH (del:Delivery {id: 'delivery_002'}), (p:Point {id: '286994676'})
+CREATE (del)-[:FROM]->(p);
+MATCH (del:Delivery {id: 'delivery_003'}), (p:Point {id: '286994676'})
+CREATE (del)-[:FROM]->(p);
+MATCH (del:Delivery {id: 'delivery_004'}), (p:Point {id: '286994676'})
+CREATE (del)-[:FROM]->(p);
+
+CREATE CONSTRAINT vehicle_id_unique IF NOT EXISTS FOR (v:Vehicle) REQUIRE v.id IS UNIQUE;
+CREATE CONSTRAINT vehicle_plate_unique IF NOT EXISTS FOR (v:Vehicle) REQUIRE v.plate IS UNIQUE;
+CREATE INDEX vehicle_id_index IF NOT EXISTS FOR (v:Vehicle) ON (v.id);
+CREATE INDEX vehicle_plate_index IF NOT EXISTS FOR (v:Vehicle) ON (v.plate);
+CREATE INDEX vehicle_available_index IF NOT EXISTS FOR (v:Vehicle) ON (v.available);
+CREATE INDEX vehicle_type_index IF NOT EXISTS FOR (v:Vehicle) ON (v.type);
