@@ -1,20 +1,16 @@
 import csv
 from services.neo4j_connection import Neo4jConnection
 
-def importar_csv(conn: Neo4jConnection, nodes_path: str, edges_path: str, borrar_antes=True):
-    if borrar_antes:
-        conn.query("MATCH (n) DETACH DELETE n")
-
+def importar_csv(conn: Neo4jConnection, nodes_path: str, edges_path: str):
+    
     with open(nodes_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             query = """
-            CREATE (:Point {
-                id: $id,
-                lat: toFloat($lat),
-                lon: toFloat($lon),
-                tipo: $tipo
-            })
+            MERGE (p:Point {id: $id})
+            SET p.lat = toFloat($lat),
+                p.lon = toFloat($lon),
+                p.tipo = $tipo
             """
             conn.query(query, {
                 'id': row['node_id:ID'],
