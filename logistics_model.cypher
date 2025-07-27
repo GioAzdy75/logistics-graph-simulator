@@ -1,7 +1,7 @@
 // === CREACIÓN DE ENTIDADES ===
 
-// Drivers (User:Driver)
-CREATE (d1:User:Driver {
+// Drivers (Person:User:Driver)
+CREATE (d1:Person:User:Driver {
     first_name: 'Juan',
     last_name: 'Pérez',
     email: 'juan.perez@logistics.com',
@@ -9,7 +9,7 @@ CREATE (d1:User:Driver {
     available: true,
     working_hours: 'morning'
 });
-CREATE (d2:User:Driver {
+CREATE (d2:Person:User:Driver {
     first_name: 'María',
     last_name: 'García',
     email: 'maria.garcia@logistics.com',
@@ -17,7 +17,7 @@ CREATE (d2:User:Driver {
     available: true,
     working_hours: 'afternoon'
 });
-CREATE (d3:User:Driver {
+CREATE (d3:Person:User:Driver {
     first_name: 'Carlos',
     last_name: 'López',
     email: 'carlos.lopez@logistics.com',
@@ -26,15 +26,15 @@ CREATE (d3:User:Driver {
     working_hours: 'night'
 });
 
-// Admins (User:Admin)
-CREATE (a1:User:Admin {
+// Admins (Person:User:Admin)
+CREATE (a1:Person:User:Admin {
     first_name: 'Ana',
     last_name: 'Rodríguez',
     email: 'ana.rodriguez@logistics.com',
     password_hash: '$2b$12$example_hash_admin_1',
     role: 'super_admin'
 });
-CREATE (a2:User:Admin {
+CREATE (a2:Person:User:Admin {
     first_name: 'Roberto',
     last_name: 'Martín',
     email: 'roberto.martin@logistics.com',
@@ -85,26 +85,26 @@ CREATE (t3:Trip {
     total_time: 150
 });
 
-// Deliveries
-CREATE (del1:Delivery {
+// Shipments (cambio de Delivery a Shipment)
+CREATE (s1:Shipment {
     date: datetime('2024-01-15T10:30:00'),
     delivered: true,
     package_info: 'Documentos importantes',
     priority: 'high'
 });
-CREATE (del2:Delivery {
+CREATE (s2:Shipment {
     date: datetime('2024-01-15T12:15:00'),
     delivered: true,
     package_info: 'Equipos electrónicos',
     priority: 'medium'
 });
-CREATE (del3:Delivery {
+CREATE (s3:Shipment {
     date: datetime('2024-01-15T16:00:00'),
     delivered: false,
     package_info: 'Medicamentos',
     priority: 'urgent'
 });
-CREATE (del4:Delivery {
+CREATE (s4:Shipment {
     date: datetime('2024-01-16T10:45:00'),
     delivered: true,
     package_info: 'Ropa y accesorios',
@@ -134,13 +134,13 @@ CREATE (p3:Point {
     tipo: 'Local'
 });
 
-// Clientes
-CREATE (c1:Client {
+// Clients (Person:Client - NO hereda de User)
+CREATE (c1:Person:Client {
     first_name: 'Pedro',
     last_name: 'González',
     email: 'pedro.gonzalez@email.com'
 });
-CREATE (c2:Client {
+CREATE (c2:Person:Client {
     first_name: 'Laura',
     last_name: 'Fernández',
     email: 'laura.fernandez@email.com'
@@ -148,36 +148,36 @@ CREATE (c2:Client {
 
 // === CREACIÓN DE RELACIONES ===
 
-// Driver EXECUTED Trip
-CREATE (d1)-[:EXECUTED]->(t1);
-CREATE (d2)-[:EXECUTED]->(t2);
-CREATE (d1)-[:EXECUTED]->(t3);
+// Driver EXECUTES Trip (cambio de EXECUTED a EXECUTES)
+CREATE (d1)-[:EXECUTES]->(t1);
+CREATE (d2)-[:EXECUTES]->(t2);
+CREATE (d1)-[:EXECUTES]->(t3);
 
 // Trip USES Vehicle
 CREATE (t1)-[:USES]->(v1);
 CREATE (t2)-[:USES]->(v2);
 CREATE (t3)-[:USES]->(v3);
 
-// Trip CONTAINS Delivery
-CREATE (t1)-[:CONTAINS]->(del1);
-CREATE (t1)-[:CONTAINS]->(del2);
-CREATE (t2)-[:CONTAINS]->(del3);
-CREATE (t3)-[:CONTAINS]->(del4);
+// Shipment BELONGS_TO Trip (cambio de CONTAINS a BELONGS_TO, invertido)
+CREATE (s1)-[:BELONGS_TO {distance: 12.5}]->(t1);
+CREATE (s2)-[:BELONGS_TO {distance: 8.3}]->(t1);
+CREATE (s3)-[:BELONGS_TO {distance: 15.7}]->(t2);
+CREATE (s4)-[:BELONGS_TO {distance: 6.2}]->(t3);
 
-// Delivery TO Point (con distance)
-CREATE (del1)-[:TO {distance: 12.5}]->(p1);
-CREATE (del2)-[:TO {distance: 8.3}]->(p2);
-CREATE (del3)-[:TO {distance: 15.7}]->(p1);
-CREATE (del4)-[:TO {distance: 6.2}]->(p3);
+// Shipment TO Point (con distance)
+CREATE (s1)-[:TO {distance: 12.5}]->(p1);
+CREATE (s2)-[:TO {distance: 8.3}]->(p2);
+CREATE (s3)-[:TO {distance: 15.7}]->(p1);
+CREATE (s4)-[:TO {distance: 6.2}]->(p3);
 
-// Cliente HAS Point
-CREATE (c1)-[:HAS]->(p1);
-CREATE (c2)-[:HAS]->(p2);
+// Client OWNS Point (cambio de HAS a OWNS)
+CREATE (c1)-[:OWNS]->(p1);
+CREATE (c2)-[:OWNS]->(p2);
 
-// Admin OWNS Point (con created_at)
-CREATE (a1)-[:OWNS {created_at: datetime('2024-01-01T00:00:00')}]->(p1);
-CREATE (a1)-[:OWNS {created_at: datetime('2024-01-01T00:00:00')}]->(p2);
-CREATE (a2)-[:OWNS {created_at: datetime('2024-01-02T00:00:00')}]->(p3);
+// Admin MANAGES Point (cambio de OWNS a MANAGES con nuevas propiedades)
+CREATE (a1)-[:MANAGES {change_date: datetime('2024-01-01T00:00:00'), change_type: 'creation'}]->(p1);
+CREATE (a1)-[:MANAGES {change_date: datetime('2024-01-01T00:00:00'), change_type: 'creation'}]->(p2);
+CREATE (a2)-[:MANAGES {change_date: datetime('2024-01-02T00:00:00'), change_type: 'edition'}]->(p3);
 
 // Point STREET Point (con propiedades)
 CREATE (p1)-[:STREET {distance: 2.5, name: 'Av. Corrientes', length: 2500, maxspeed: 60, weight: 1.0}]->(p3);
@@ -186,8 +186,7 @@ CREATE (p2)-[:STREET {distance: 3.2, name: 'Av. Cabildo', length: 3200, maxspeed
 
 // === CONSTRAINTS ===
 
-CREATE CONSTRAINT user_email_unique IF NOT EXISTS FOR (u:User) REQUIRE u.email IS UNIQUE;
-CREATE CONSTRAINT cliente_email_unique IF NOT EXISTS FOR (c:Cliente) REQUIRE c.email IS UNIQUE;
+CREATE CONSTRAINT Person_email_unique IF NOT EXISTS FOR (p:Person) REQUIRE p.email IS UNIQUE;
 
 // === ÍNDICES ===
 
@@ -201,24 +200,23 @@ CREATE INDEX street_weight_index IF NOT EXISTS FOR ()-[s:STREET]-() ON (s.weight
 CREATE INDEX street_length_index IF NOT EXISTS FOR ()-[s:STREET]-() ON (s.length);
 CREATE INDEX street_maxspeed_index IF NOT EXISTS FOR ()-[s:STREET]-() ON (s.maxspeed);
 
-// Índices para User
-CREATE INDEX user_email_index IF NOT EXISTS FOR (u:User) ON (u.email);
+// Índices para Person y sus subtipos
+CREATE INDEX Person_email_index IF NOT EXISTS FOR (p:Person) ON (p.email);
+CREATE INDEX User_email_index IF NOT EXISTS FOR (u:User) ON (u.email);
 CREATE INDEX driver_available_index IF NOT EXISTS FOR (d:Driver) ON (d.available);
 CREATE INDEX admin_role_index IF NOT EXISTS FOR (a:Admin) ON (a.role);
+CREATE INDEX client_email_index IF NOT EXISTS FOR (c:Client) ON (c.email);
 
 // Índices para Trip
 CREATE INDEX trip_date_index IF NOT EXISTS FOR (t:Trip) ON (t.date);
 CREATE INDEX trip_started_index IF NOT EXISTS FOR (t:Trip) ON (t.started_at);
 CREATE INDEX trip_ended_index IF NOT EXISTS FOR (t:Trip) ON (t.ended_at);
 
-// Índices para Delivery
-CREATE INDEX delivery_date_index IF NOT EXISTS FOR (d:Delivery) ON (d.date);
-CREATE INDEX delivery_delivered_index IF NOT EXISTS FOR (d:Delivery) ON (d.delivered);
-CREATE INDEX delivery_priority_index IF NOT EXISTS FOR (d:Delivery) ON (d.priority);
+// Índices para Shipment (cambio de Delivery)
+CREATE INDEX shipment_date_index IF NOT EXISTS FOR (s:Shipment) ON (s.date);
+CREATE INDEX shipment_delivered_index IF NOT EXISTS FOR (s:Shipment) ON (s.delivered);
+CREATE INDEX shipment_priority_index IF NOT EXISTS FOR (s:Shipment) ON (s.priority);
 
 // Índices para Vehicle
 CREATE INDEX vehicle_available_index IF NOT EXISTS FOR (v:Vehicle) ON (v.available);
 CREATE INDEX vehicle_type_index IF NOT EXISTS FOR (v:Vehicle) ON (v.type);
-
-// Índices para Cliente
-CREATE INDEX cliente_email_index IF NOT EXISTS FOR (c:Cliente) ON (c.email);
