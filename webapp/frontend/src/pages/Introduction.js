@@ -15,7 +15,7 @@ export default function Introduction() {
         className="max-w-md w-full rounded-lg shadow-lg mb-6"
       />
       <Link
-        to="/locales"
+        to="/config"
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
       >
         Empezar ahora
